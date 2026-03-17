@@ -575,6 +575,93 @@
             box-shadow: var(--shadow-sm);
         }
 
+        /* ─── Custom Category Creator ─── */
+        .category-option.create-custom {
+            border: 2px dashed var(--gray-300);
+            background: var(--gray-50);
+            color: var(--gray-500);
+            grid-column: span 2;
+        }
+        .category-option.create-custom:hover {
+            border-color: var(--teal);
+            color: var(--teal);
+            background: var(--teal-pale);
+        }
+        .custom-cat-form {
+            display: none;
+            grid-column: 1 / -1;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+        }
+        .custom-cat-form.visible { display: block; }
+        .custom-cat-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        .custom-cat-row .form-group { margin-bottom: 0; flex: 1; }
+        .custom-cat-row .form-group label {
+            font-size: 0.7rem;
+            margin-bottom: 3px;
+        }
+        .custom-cat-row input[type="color"] {
+            width: 100%;
+            height: 36px;
+            padding: 2px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            background: white;
+        }
+        .custom-cat-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .custom-cat-list {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .custom-cat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.15s;
+        }
+        .custom-cat-chip:hover { transform: scale(1.03); }
+        .custom-cat-chip.selected {
+            border-color: var(--navy);
+            box-shadow: var(--shadow-sm);
+        }
+        .custom-cat-chip .remove-cat {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,0.15);
+            color: inherit;
+            font-size: 0.65rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 2px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        .custom-cat-chip:hover .remove-cat { opacity: 1; }
+        .custom-cat-chip .remove-cat:hover { background: rgba(0,0,0,0.25); }
+
         /* ─── Responsive ─── */
         @media (max-width: 1100px) {
             .timetable-grid {
@@ -795,6 +882,22 @@
                     <div class="category-grid" id="categoryGrid">
                         <!-- Filled by JS -->
                     </div>
+                    <div class="custom-cat-form" id="customCatForm">
+                        <div class="custom-cat-row">
+                            <div class="form-group">
+                                <label>Category Name</label>
+                                <input type="text" id="customCatName" placeholder="e.g. Art, Geography">
+                            </div>
+                            <div class="form-group" style="flex:0 0 60px;">
+                                <label>Colour</label>
+                                <input type="color" id="customCatColor" value="#6366f1">
+                            </div>
+                        </div>
+                        <div class="custom-cat-actions">
+                            <button class="btn btn-primary btn-sm" onclick="saveCustomCategory()">Create Category</button>
+                            <button class="btn btn-outline btn-sm" onclick="toggleCustomForm(false)">Cancel</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -849,10 +952,12 @@ const CATEGORIES = [
 ];
 
 let timetableData = {};
+let customCategories = []; // { id, label, color }
 let isEditor = false;
 let editingBlockId = null;
 let firebaseReady = false;
 let dbRef = null;
+let customCatRef = null;
 
 // ═══════════════════════════════════════════════
 // DEFAULT TIMETABLE DATA
@@ -928,7 +1033,14 @@ function initFirebase() {
         firebase.initializeApp(FIREBASE_CONFIG);
         const db = firebase.database();
         dbRef = db.ref('timetable');
+        customCatRef = db.ref('customCategories');
         firebaseReady = true;
+
+        // Listen for custom categories
+        customCatRef.on('value', (snapshot) => {
+            customCategories = snapshot.val() || [];
+            buildCategoryGrid();
+        });
 
         dbRef.on('value', (snapshot) => {
             const data = snapshot.val();
@@ -957,6 +1069,11 @@ function loadLocalData() {
     } else {
         timetableData = getDefaultTimetable();
     }
+    const savedCats = localStorage.getItem('lockwood-custom-categories');
+    if (savedCats) {
+        try { customCategories = JSON.parse(savedCats); } catch(e) { customCategories = []; }
+    }
+    buildCategoryGrid();
     renderTimetable();
     hideLoading();
 }
@@ -966,6 +1083,14 @@ function saveData() {
         dbRef.set(timetableData);
     } else {
         localStorage.setItem('lockwood-timetable', JSON.stringify(timetableData));
+    }
+}
+
+function saveCustomCategories() {
+    if (firebaseReady && customCatRef) {
+        customCatRef.set(customCategories);
+    } else {
+        localStorage.setItem('lockwood-custom-categories', JSON.stringify(customCategories));
     }
 }
 
@@ -1009,8 +1134,15 @@ function renderBlock(block, day, idx) {
     const timeStr = formatTimeRange(block.start, block.end);
     const dur = calcDuration(block.start, block.end);
 
+    // Check if this is a custom category
+    const customCat = customCategories.find(c => c.id === cat);
+    const isCustom = !!customCat;
+    const blockClass = isCustom ? '' : `block-${cat}`;
+    const customStyle = isCustom ? `background:${hexToLight(customCat.color)};border-color:${customCat.color};color:${hexToDark(customCat.color)};` : '';
+
     return `
-        <div class="block block-${cat} ${isEditor ? 'editable' : ''}"
+        <div class="block ${blockClass} ${isEditor ? 'editable' : ''}"
+             style="${customStyle}"
              ${isEditor ? `onclick="openEditModal('${day}', ${idx})"` : ''}>
             ${timeStr ? `<div class="block-time">${timeStr}</div>` : ''}
             <div class="block-subject">${escapeHtml(block.subject)}</div>
@@ -1025,6 +1157,22 @@ function renderBlock(block, day, idx) {
             ` : ''}
         </div>
     `;
+}
+
+// Convert hex colour to a light background tint
+function hexToLight(hex) {
+    const r = parseInt(hex.slice(1,3), 16);
+    const g = parseInt(hex.slice(3,5), 16);
+    const b = parseInt(hex.slice(5,7), 16);
+    return `rgba(${r},${g},${b},0.1)`;
+}
+
+// Convert hex colour to a dark text shade
+function hexToDark(hex) {
+    const r = Math.max(0, parseInt(hex.slice(1,3), 16) - 80);
+    const g = Math.max(0, parseInt(hex.slice(3,5), 16) - 80);
+    const b = Math.max(0, parseInt(hex.slice(5,7), 16) - 80);
+    return `rgb(${r},${g},${b})`;
 }
 
 function formatTimeRange(start, end) {
@@ -1119,6 +1267,7 @@ function openAddModal(day) {
     document.getElementById('blockNote').value = '';
     selectCategory('other');
 
+    buildCategoryGrid();
     document.getElementById('blockModal').classList.add('open');
     document.getElementById('blockSubject').focus();
 }
@@ -1137,6 +1286,8 @@ function openEditModal(day, idx) {
     document.getElementById('blockStart').value = block.start || '';
     document.getElementById('blockEnd').value = block.end || '';
     document.getElementById('blockNote').value = block.note || '';
+
+    buildCategoryGrid();
     selectCategory(block.category || 'other');
 
     document.getElementById('blockModal').classList.add('open');
@@ -1219,22 +1370,115 @@ let selectedCategory = 'other';
 
 function buildCategoryGrid() {
     const grid = document.getElementById('categoryGrid');
-    grid.innerHTML = CATEGORIES.map(c => `
+
+    // Built-in categories
+    let html = CATEGORIES.map(c => `
         <div class="category-option block-${c.id}" data-cat="${c.id}" onclick="selectCategory('${c.id}')">
             ${c.label}
         </div>
     `).join('');
+
+    // Custom categories
+    if (customCategories.length > 0) {
+        html += '<div class="custom-cat-list">';
+        html += customCategories.map(c => `
+            <div class="custom-cat-chip" data-cat="${c.id}"
+                 style="background:${hexToLight(c.color)};border-color:transparent;color:${hexToDark(c.color)};border-left:4px solid ${c.color};"
+                 onclick="selectCategory('${c.id}')">
+                ${escapeHtml(c.label)}
+                <button class="remove-cat" onclick="event.stopPropagation();removeCustomCategory('${c.id}')" title="Remove category">&times;</button>
+            </div>
+        `).join('');
+        html += '</div>';
+    }
+
+    // "+ Create Custom" button
+    html += `
+        <div class="category-option create-custom" onclick="toggleCustomForm(true)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="vertical-align:-1px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create Custom
+        </div>
+    `;
+
+    grid.innerHTML = html;
+
+    // Re-apply selection state
+    highlightSelected();
 }
 
 function selectCategory(catId) {
     selectedCategory = catId;
-    document.querySelectorAll('.category-option').forEach(el => {
-        el.classList.toggle('selected', el.dataset.cat === catId);
+    toggleCustomForm(false);
+    highlightSelected();
+}
+
+function highlightSelected() {
+    document.querySelectorAll('.category-option, .custom-cat-chip').forEach(el => {
+        el.classList.toggle('selected', el.dataset.cat === selectedCategory);
     });
 }
 
 function getSelectedCategory() {
     return selectedCategory;
+}
+
+// ═══════════════════════════════════════════════
+// CUSTOM CATEGORY MANAGEMENT
+// ═══════════════════════════════════════════════
+function toggleCustomForm(show) {
+    const form = document.getElementById('customCatForm');
+    if (show) {
+        form.classList.add('visible');
+        document.getElementById('customCatName').value = '';
+        document.getElementById('customCatColor').value = randomColor();
+        document.getElementById('customCatName').focus();
+    } else {
+        form.classList.remove('visible');
+    }
+}
+
+function saveCustomCategory() {
+    const name = document.getElementById('customCatName').value.trim();
+    if (!name) {
+        document.getElementById('customCatName').style.borderColor = '#ef4444';
+        return;
+    }
+    document.getElementById('customCatName').style.borderColor = '';
+
+    const color = document.getElementById('customCatColor').value;
+    const id = 'custom_' + name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+
+    customCategories.push({ id, label: name, color });
+    saveCustomCategories();
+    buildCategoryGrid();
+
+    // Auto-select the new category
+    selectCategory(id);
+    toggleCustomForm(false);
+}
+
+function removeCustomCategory(catId) {
+    if (!confirm('Remove this custom category? Blocks using it will switch to "Other".')) return;
+
+    customCategories = customCategories.filter(c => c.id !== catId);
+    saveCustomCategories();
+
+    // Update any blocks using this category to 'other'
+    DAYS.forEach(day => {
+        (timetableData[day] || []).forEach(block => {
+            if (block.category === catId) block.category = 'other';
+        });
+    });
+    saveData();
+
+    if (selectedCategory === catId) selectedCategory = 'other';
+    buildCategoryGrid();
+    renderTimetable();
+}
+
+function randomColor() {
+    const colors = ['#6366f1','#ec4899','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#f97316','#14b8a6','#84cc16','#e11d48','#0ea5e9'];
+    return colors[Math.floor(Math.random() * colors.length)];
 }
 
 // ═══════════════════════════════════════════════
