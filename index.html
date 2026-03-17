@@ -718,31 +718,6 @@
             font-size: 0.88rem;
         }
 
-        /* ─── Firebase Setup Banner ─── */
-        .setup-banner {
-            background: linear-gradient(135deg, #fffbeb, #fef3c7);
-            border: 1px solid #fde68a;
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        .setup-banner h3 {
-            color: #92400e;
-            font-size: 0.95rem;
-            margin-bottom: 8px;
-        }
-        .setup-banner p {
-            color: #78350f;
-            font-size: 0.82rem;
-            line-height: 1.5;
-        }
-        .setup-banner code {
-            background: rgba(0,0,0,0.06);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.78rem;
-        }
     </style>
 </head>
 <body>
@@ -778,14 +753,6 @@
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-
-        <!-- Firebase Setup Banner (shown when no Firebase config) -->
-        <div class="setup-banner" id="setupBanner">
-            <h3>Firebase Setup Required for Live Sync</h3>
-            <p>To enable real-time live updates across devices, you need to configure Firebase.
-               See the <strong>README.md</strong> for setup instructions. Currently running in
-               <strong>local demo mode</strong> — changes are saved in your browser only.</p>
-        </div>
 
         <!-- Editor Toolbar -->
         <div class="toolbar" id="toolbar">
@@ -1028,7 +995,7 @@ function getDefaultTimetable() {
 // ═══════════════════════════════════════════════
 function initFirebase() {
     if (!FIREBASE_CONFIG.apiKey) {
-        document.getElementById('setupBanner').style.display = 'block';
+
         loadLocalData();
         return;
     }
@@ -1058,7 +1025,7 @@ function initFirebase() {
         });
     } catch (e) {
         console.error('Firebase init failed:', e);
-        document.getElementById('setupBanner').style.display = 'block';
+
         loadLocalData();
     }
 }
