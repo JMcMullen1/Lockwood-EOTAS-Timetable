@@ -40,63 +40,63 @@
             --radius: 12px;
             --radius-sm: 8px;
 
-            /* Subject colours */
-            --clr-science: #3b82f6;
-            --clr-science-bg: #eff6ff;
-            --clr-science-border: #bfdbfe;
-            --clr-maths: #8b5cf6;
-            --clr-maths-bg: #f5f3ff;
-            --clr-maths-border: #ddd6fe;
-            --clr-english: #ec4899;
-            --clr-english-bg: #fdf2f8;
-            --clr-english-border: #fbcfe8;
-            --clr-it: #06b6d4;
-            --clr-it-bg: #ecfeff;
-            --clr-it-border: #a5f3fc;
-            --clr-music: #f59e0b;
-            --clr-music-bg: #fffbeb;
-            --clr-music-border: #fde68a;
-            --clr-business: #10b981;
-            --clr-business-bg: #ecfdf5;
-            --clr-business-border: #a7f3d0;
-            --clr-ot: #f97316;
-            --clr-ot-bg: #fff7ed;
-            --clr-ot-border: #fed7aa;
-            --clr-semh: #14b8a6;
-            --clr-semh-bg: #f0fdfa;
-            --clr-semh-border: #99f6e4;
-            --clr-lunch: #64748b;
-            --clr-lunch-bg: #f8fafc;
-            --clr-lunch-border: #e2e8f0;
-            --clr-break: #94a3b8;
-            --clr-break-bg: #f8fafc;
-            --clr-break-border: #e2e8f0;
-            --clr-travel: #a78bfa;
-            --clr-travel-bg: #f5f3ff;
-            --clr-travel-border: #ddd6fe;
-            --clr-private: #e11d48;
-            --clr-private-bg: #fff1f2;
-            --clr-private-border: #fecdd3;
+            /* Subject colours – richer tones */
+            --clr-science: #2563eb;
+            --clr-science-bg: #dbeafe;
+            --clr-science-border: #93c5fd;
+            --clr-maths: #7c3aed;
+            --clr-maths-bg: #ede9fe;
+            --clr-maths-border: #c4b5fd;
+            --clr-english: #db2777;
+            --clr-english-bg: #fce7f3;
+            --clr-english-border: #f9a8d4;
+            --clr-it: #0891b2;
+            --clr-it-bg: #cffafe;
+            --clr-it-border: #67e8f9;
+            --clr-music: #d97706;
+            --clr-music-bg: #fef3c7;
+            --clr-music-border: #fcd34d;
+            --clr-business: #059669;
+            --clr-business-bg: #d1fae5;
+            --clr-business-border: #6ee7b7;
+            --clr-ot: #ea580c;
+            --clr-ot-bg: #ffedd5;
+            --clr-ot-border: #fdba74;
+            --clr-semh: #0d9488;
+            --clr-semh-bg: #ccfbf1;
+            --clr-semh-border: #5eead4;
+            --clr-lunch: #475569;
+            --clr-lunch-bg: #f1f5f9;
+            --clr-lunch-border: #cbd5e1;
+            --clr-break: #64748b;
+            --clr-break-bg: #f1f5f9;
+            --clr-break-border: #cbd5e1;
+            --clr-travel: #8b5cf6;
+            --clr-travel-bg: #ede9fe;
+            --clr-travel-border: #c4b5fd;
+            --clr-private: #be123c;
+            --clr-private-bg: #ffe4e6;
+            --clr-private-border: #fda4af;
             --clr-other: #6b7280;
-            --clr-other-bg: #f9fafb;
-            --clr-other-border: #e5e7eb;
+            --clr-other-bg: #f3f4f6;
+            --clr-other-border: #d1d5db;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--off-white);
+            background: linear-gradient(160deg, #f0f4f8 0%, #e8f0fe 40%, #f0fdf4 70%, #f7f9fc 100%);
             color: var(--gray-800);
             min-height: 100vh;
         }
 
         /* ─── Header ─── */
         .header {
-            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 50%, var(--teal) 100%);
+            background: linear-gradient(135deg, #162d4a 0%, var(--navy) 30%, var(--navy-light) 60%, var(--teal) 100%);
             color: white;
             padding: 0;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 4px 20px rgba(26,58,92,0.25);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -116,23 +116,24 @@
             gap: 16px;
         }
         .logo {
-            height: 52px;
-            width: 52px;
-            border-radius: 10px;
+            height: 72px;
+            width: 72px;
+            border-radius: 14px;
             background: white;
-            padding: 4px;
-            box-shadow: var(--shadow-md);
+            padding: 3px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
         .header-text h1 {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: 700;
             letter-spacing: -0.02em;
         }
         .header-text p {
-            font-size: 0.82rem;
-            opacity: 0.85;
+            font-size: 0.88rem;
+            opacity: 0.9;
             font-weight: 300;
+            letter-spacing: 0.02em;
         }
         .header-actions {
             display: flex;
@@ -247,28 +248,28 @@
         .timetable-grid {
             display: grid;
             grid-template-columns: repeat(7, minmax(200px, 1fr));
-            gap: 12px;
+            gap: 14px;
             min-width: 900px;
         }
 
         /* ─── Day Column ─── */
         .day-column {
             background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border: 1px solid var(--gray-200);
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            border: none;
             overflow: hidden;
-            transition: box-shadow 0.2s;
+            transition: box-shadow 0.25s, transform 0.25s;
         }
         .day-column:hover {
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
+            transform: translateY(-2px);
         }
         .day-column.today {
-            border-color: var(--teal);
-            box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15), var(--shadow-md);
+            box-shadow: 0 0 0 2.5px var(--teal), 0 8px 24px rgba(42,157,143,0.15);
         }
         .day-header {
-            padding: 14px 16px;
+            padding: 16px 16px;
             font-family: 'Poppins', sans-serif;
             font-weight: 700;
             font-size: 0.95rem;
@@ -276,9 +277,10 @@
             background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
             color: white;
             position: relative;
+            letter-spacing: 0.02em;
         }
         .day-header.today-header {
-            background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+            background: linear-gradient(135deg, var(--teal) 0%, #34d399 100%);
         }
         .today-indicator {
             font-size: 0.68rem;
@@ -292,17 +294,18 @@
             min-height: 200px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 7px;
         }
 
         /* ─── Timetable Block ─── */
         .block {
-            padding: 10px 12px;
+            padding: 11px 13px;
             border-radius: var(--radius-sm);
-            border-left: 4px solid;
+            border-left: 5px solid;
             position: relative;
             transition: all 0.2s;
             cursor: default;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
         }
         .block.editable {
             cursor: grab;
@@ -745,7 +748,7 @@
 <body>
     <!-- Loading screen -->
     <div class="loading-overlay" id="loadingOverlay">
-        <img src="https://i.postimg.cc/SN0MKjhP/Lockwood-EOTAS-logo.png" alt="Lockwood Education" style="height:80px;margin-bottom:20px;border-radius:12px;">
+        <img src="https://i.postimg.cc/SN0MKjhP/Lockwood-EOTAS-logo.png" alt="Lockwood Education" style="height:110px;margin-bottom:20px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
         <div class="loading-spinner"></div>
         <div class="loading-text">Loading timetable...</div>
     </div>
