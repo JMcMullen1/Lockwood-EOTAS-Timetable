@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lockwood EOTAS – Timetable</title>
+    <link rel="icon" href="https://i.postimg.cc/SN0MKjhP/Lockwood-EOTAS-logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --navy: #1a3a5c;
+            --navy-light: #234b73;
+            --teal: #2a9d8f;
+            --teal-light: #40b4a6;
+            --teal-pale: #e8f6f4;
+            --cyan: #4db8d1;
+            --gold: #d4a843;
+            --gold-light: #f0d48a;
+            --white: #ffffff;
+            --off-white: #f7f9fc;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --radius: 12px;
+            --radius-sm: 8px;
+
+            /* Subject colours */
+            --clr-science: #3b82f6;
+            --clr-science-bg: #eff6ff;
+            --clr-science-border: #bfdbfe;
+            --clr-maths: #8b5cf6;
+            --clr-maths-bg: #f5f3ff;
+            --clr-maths-border: #ddd6fe;
+            --clr-english: #ec4899;
+            --clr-english-bg: #fdf2f8;
+            --clr-english-border: #fbcfe8;
+            --clr-it: #06b6d4;
+            --clr-it-bg: #ecfeff;
+            --clr-it-border: #a5f3fc;
+            --clr-music: #f59e0b;
+            --clr-music-bg: #fffbeb;
+            --clr-music-border: #fde68a;
+            --clr-business: #10b981;
+            --clr-business-bg: #ecfdf5;
+            --clr-business-border: #a7f3d0;
+            --clr-ot: #f97316;
+            --clr-ot-bg: #fff7ed;
+            --clr-ot-border: #fed7aa;
+            --clr-semh: #14b8a6;
+            --clr-semh-bg: #f0fdfa;
+            --clr-semh-border: #99f6e4;
+            --clr-lunch: #64748b;
+            --clr-lunch-bg: #f8fafc;
+            --clr-lunch-border: #e2e8f0;
+            --clr-break: #94a3b8;
+            --clr-break-bg: #f8fafc;
+            --clr-break-border: #e2e8f0;
+            --clr-travel: #a78bfa;
+            --clr-travel-bg: #f5f3ff;
+            --clr-travel-border: #ddd6fe;
+            --clr-private: #e11d48;
+            --clr-private-bg: #fff1f2;
+            --clr-private-border: #fecdd3;
+            --clr-other: #6b7280;
+            --clr-other-bg: #f9fafb;
+            --clr-other-border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--off-white);
+            color: var(--gray-800);
+            min-height: 100vh;
+        }
+
+        /* ─── Header ─── */
+        .header {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 50%, var(--teal) 100%);
+            color: white;
+            padding: 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .logo {
+            height: 52px;
+            width: 52px;
+            border-radius: 10px;
+            background: white;
+            padding: 4px;
+            box-shadow: var(--shadow-md);
+        }
+        .header-text h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .header-text p {
+            font-size: 0.82rem;
+            opacity: 0.85;
+            font-weight: 300;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-editor {
+            background: var(--gold);
+            color: var(--navy);
+        }
+        .btn-editor:hover { background: var(--gold-light); }
+        .btn-editor.active {
+            background: #4ade80;
+            color: var(--gray-800);
+        }
+        .btn-primary {
+            background: var(--teal);
+            color: white;
+        }
+        .btn-primary:hover { background: var(--teal-light); }
+        .btn-outline {
+            background: transparent;
+            color: var(--gray-600);
+            border: 1px solid var(--gray-300);
+        }
+        .btn-outline:hover {
+            background: var(--gray-100);
+            border-color: var(--gray-400);
+        }
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+        }
+
+        /* ─── Main Content ─── */
+        .main-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px 32px 48px;
+        }
+
+        /* ─── Toolbar ─── */
+        .toolbar {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 14px 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+        }
+        .toolbar.visible { display: flex; }
+        .toolbar-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin-right: 4px;
+        }
+
+        /* ─── Timetable Grid ─── */
+        .timetable-container {
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(200px, 1fr));
+            gap: 12px;
+            min-width: 900px;
+        }
+
+        /* ─── Day Column ─── */
+        .day-column {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        .day-column:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .day-column.today {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 2px rgba(42, 157, 143, 0.15), var(--shadow-md);
+        }
+        .day-header {
+            padding: 14px 16px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+            color: white;
+            position: relative;
+        }
+        .day-header.today-header {
+            background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+        }
+        .today-indicator {
+            font-size: 0.68rem;
+            font-weight: 400;
+            opacity: 0.9;
+            display: block;
+            margin-top: 2px;
+        }
+        .day-blocks {
+            padding: 10px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        /* ─── Timetable Block ─── */
+        .block {
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid;
+            position: relative;
+            transition: all 0.2s;
+            cursor: default;
+        }
+        .block.editable {
+            cursor: grab;
+        }
+        .block.editable:hover {
+            transform: translateX(2px);
+            box-shadow: var(--shadow-md);
+        }
+        .block-time {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 3px;
+            opacity: 0.7;
+        }
+        .block-subject {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .block-duration {
+            font-size: 0.68rem;
+            opacity: 0.6;
+            margin-top: 2px;
+        }
+        .block-note {
+            font-size: 0.72rem;
+            opacity: 0.7;
+            margin-top: 3px;
+            font-style: italic;
+        }
+        .block-actions {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            display: none;
+            gap: 3px;
+        }
+        .block.editable:hover .block-actions {
+            display: flex;
+        }
+        .block-action-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.8);
+            color: var(--gray-500);
+            transition: all 0.15s;
+        }
+        .block-action-btn:hover {
+            background: white;
+            color: var(--gray-800);
+            box-shadow: var(--shadow-sm);
+        }
+        .block-action-btn.delete:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Block colours */
+        .block-science { background: var(--clr-science-bg); border-color: var(--clr-science); color: #1e40af; }
+        .block-maths { background: var(--clr-maths-bg); border-color: var(--clr-maths); color: #5b21b6; }
+        .block-english { background: var(--clr-english-bg); border-color: var(--clr-english); color: #9d174d; }
+        .block-it { background: var(--clr-it-bg); border-color: var(--clr-it); color: #0e7490; }
+        .block-music { background: var(--clr-music-bg); border-color: var(--clr-music); color: #92400e; }
+        .block-business { background: var(--clr-business-bg); border-color: var(--clr-business); color: #065f46; }
+        .block-ot { background: var(--clr-ot-bg); border-color: var(--clr-ot); color: #9a3412; }
+        .block-semh { background: var(--clr-semh-bg); border-color: var(--clr-semh); color: #115e59; }
+        .block-lunch { background: var(--clr-lunch-bg); border-color: var(--clr-lunch); color: var(--gray-600); }
+        .block-break { background: var(--clr-break-bg); border-color: var(--clr-break); color: var(--gray-500); }
+        .block-travel { background: var(--clr-travel-bg); border-color: var(--clr-travel); color: #5b21b6; }
+        .block-private { background: var(--clr-private-bg); border-color: var(--clr-private); color: #9f1239; }
+        .block-other { background: var(--clr-other-bg); border-color: var(--clr-other); color: var(--gray-600); }
+
+        .block-lunch, .block-break {
+            opacity: 0.7;
+            padding: 7px 12px;
+        }
+
+        /* Add block button */
+        .add-block-btn {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--gray-400);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-family: inherit;
+        }
+        .add-block-btn:hover {
+            border-color: var(--teal);
+            color: var(--teal);
+            background: var(--teal-pale);
+        }
+        .editing .add-block-btn {
+            display: flex;
+        }
+
+        /* ─── No activities ─── */
+        .no-activities {
+            padding: 24px 16px;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 0.82rem;
+            font-style: italic;
+        }
+
+        /* ─── Modal ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-xl);
+            width: 100%;
+            max-width: 460px;
+            animation: modalIn 0.2s ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-header {
+            padding: 20px 24px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            color: var(--navy);
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--gray-100);
+            color: var(--gray-500);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover { background: var(--gray-200); }
+        .modal-body { padding: 20px 24px; }
+        .modal-footer {
+            padding: 0 24px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-family: inherit;
+            color: var(--gray-800);
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(42,157,143,0.1);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ─── Login Modal ─── */
+        .login-modal .modal-body {
+            text-align: center;
+        }
+        .login-modal .lock-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--teal-pale);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.3rem;
+        }
+        .login-error {
+            color: #dc2626;
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ─── Footer ─── */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--gray-400);
+            font-size: 0.75rem;
+        }
+        .footer a {
+            color: var(--teal);
+            text-decoration: none;
+        }
+
+        /* ─── Colour picker grid ─── */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        .category-option {
+            padding: 8px 6px;
+            border-radius: var(--radius-sm);
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.72rem;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .category-option:hover { transform: scale(1.03); }
+        .category-option.selected {
+            border-color: var(--navy);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 1100px) {
+            .timetable-grid {
+                grid-template-columns: repeat(4, minmax(200px, 1fr));
+            }
+        }
+        @media (max-width: 768px) {
+            .header-inner { padding: 12px 16px; }
+            .main-content { padding: 16px; }
+            .timetable-grid {
+                grid-template-columns: repeat(2, minmax(180px, 1fr));
+                gap: 8px;
+            }
+            .header-text h1 { font-size: 1.1rem; }
+            .status-badge span:last-child { display: none; }
+        }
+        @media (max-width: 480px) {
+            .timetable-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── Loading State ─── */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--off-white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            transition: opacity 0.3s;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--teal);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text {
+            color: var(--gray-500);
+            font-size: 0.88rem;
+        }
+
+        /* ─── Firebase Setup Banner ─── */
+        .setup-banner {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border: 1px solid #fde68a;
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .setup-banner h3 {
+            color: #92400e;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+        .setup-banner p {
+            color: #78350f;
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+        .setup-banner code {
+            background: rgba(0,0,0,0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <img src="https://i.postimg.cc/SN0MKjhP/Lockwood-EOTAS-logo.png" alt="Lockwood Education" style="height:80px;margin-bottom:20px;border-radius:12px;">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading timetable...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <img src="https://i.postimg.cc/SN0MKjhP/Lockwood-EOTAS-logo.png" alt="Lockwood Education" class="logo">
+                <div class="header-text">
+                    <h1>EOTAS Timetable</h1>
+                    <p>Lockwood Education</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span class="status-badge" id="syncBadge">
+                    <span class="status-dot"></span>
+                    <span>Live</span>
+                </span>
+                <button class="btn btn-editor" id="editorBtn" onclick="toggleEditorLogin()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Editor Login
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+
+        <!-- Firebase Setup Banner (shown when no Firebase config) -->
+        <div class="setup-banner" id="setupBanner">
+            <h3>Firebase Setup Required for Live Sync</h3>
+            <p>To enable real-time live updates across devices, you need to configure Firebase.
+               See the <strong>README.md</strong> for setup instructions. Currently running in
+               <strong>local demo mode</strong> — changes are saved in your browser only.</p>
+        </div>
+
+        <!-- Editor Toolbar -->
+        <div class="toolbar" id="toolbar">
+            <span class="toolbar-label">Editor Mode</span>
+            <button class="btn btn-primary btn-sm" onclick="openAddModal()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Block
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="resetToDefault()" title="Reset to default timetable">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                Reset
+            </button>
+            <div style="flex:1"></div>
+            <button class="btn btn-outline btn-sm" onclick="logoutEditor()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Exit Editor
+            </button>
+        </div>
+
+        <!-- Timetable Grid -->
+        <div class="timetable-container">
+            <div class="timetable-grid" id="timetableGrid">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        &copy; Lockwood Education <span id="footerYear"></span>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal login-modal">
+            <div class="modal-header">
+                <h2>Editor Access</h2>
+                <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="lock-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <p style="font-size:0.85rem;color:var(--gray-500);margin-bottom:16px;">Enter the editor password to make changes to the timetable.</p>
+                <div class="form-group" style="text-align:left;">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter editor password" onkeydown="if(event.key==='Enter')attemptLogin()">
+                </div>
+                <div class="login-error" id="loginError">Incorrect password. Please try again.</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('loginModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="attemptLogin()">Unlock Editor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Block Modal -->
+    <div class="modal-overlay" id="blockModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="blockModalTitle">Add Block</h2>
+                <button class="modal-close" onclick="closeModal('blockModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Day</label>
+                    <select id="blockDay">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject / Activity</label>
+                    <input type="text" id="blockSubject" placeholder="e.g. Biology, Lunch, Travel to TMW">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input type="time" id="blockStart" value="12:00">
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input type="time" id="blockEnd" value="13:00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Note (optional)</label>
+                    <input type="text" id="blockNote" placeholder="e.g. @ Cheltenham Animal Shelter">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <div class="category-grid" id="categoryGrid">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="deleteBlockBtn" onclick="deleteBlock()" style="display:none;margin-right:auto;">Delete</button>
+                <button class="btn btn-outline" onclick="closeModal('blockModal')">Cancel</button>
+                <button class="btn btn-primary" id="saveBlockBtn" onclick="saveBlock()">Add Block</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════
+
+// ──── Firebase Config ────
+// Replace with your own Firebase project config.
+// See README.md for instructions.
+const FIREBASE_CONFIG = {
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+};
+
+// ──── Editor Password ────
+// Change this to your own password!
+const EDITOR_PASSWORD_HASH = "lockwood2025";
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+const CATEGORIES = [
+    { id: 'science', label: 'Science', bg: 'var(--clr-science-bg)', color: 'var(--clr-science)' },
+    { id: 'maths', label: 'Maths', bg: 'var(--clr-maths-bg)', color: 'var(--clr-maths)' },
+    { id: 'english', label: 'English', bg: 'var(--clr-english-bg)', color: 'var(--clr-english)' },
+    { id: 'it', label: 'IT', bg: 'var(--clr-it-bg)', color: 'var(--clr-it)' },
+    { id: 'music', label: 'Music', bg: 'var(--clr-music-bg)', color: 'var(--clr-music)' },
+    { id: 'business', label: 'Business', bg: 'var(--clr-business-bg)', color: 'var(--clr-business)' },
+    { id: 'ot', label: 'OT', bg: 'var(--clr-ot-bg)', color: 'var(--clr-ot)' },
+    { id: 'semh', label: 'SEMH', bg: 'var(--clr-semh-bg)', color: 'var(--clr-semh)' },
+    { id: 'lunch', label: 'Lunch', bg: 'var(--clr-lunch-bg)', color: 'var(--clr-lunch)' },
+    { id: 'break', label: 'Break', bg: 'var(--clr-break-bg)', color: 'var(--clr-break)' },
+    { id: 'travel', label: 'Travel', bg: 'var(--clr-travel-bg)', color: 'var(--clr-travel)' },
+    { id: 'private', label: 'Private', bg: 'var(--clr-private-bg)', color: 'var(--clr-private)' },
+    { id: 'other', label: 'Other', bg: 'var(--clr-other-bg)', color: 'var(--clr-other)' },
+];
+
+let timetableData = {};
+let isEditor = false;
+let editingBlockId = null;
+let firebaseReady = false;
+let dbRef = null;
+
+// ═══════════════════════════════════════════════
+// DEFAULT TIMETABLE DATA
+// ═══════════════════════════════════════════════
+function getDefaultTimetable() {
+    let id = 0;
+    const b = (subject, start, end, category, note='') => ({
+        id: ++id,
+        subject, start, end, category, note
+    });
+
+    return {
+        Monday: [
+            b('Biology', '12:00', '14:00', 'science'),
+            b('Lunch', '14:00', '15:00', 'lunch'),
+            b('Maths', '15:00', '16:00', 'maths'),
+            b('Break', '16:00', '16:30', 'break'),
+            b('English', '16:30', '17:30', 'english'),
+            b('Break', '17:30', '18:00', 'break'),
+            b('IT', '18:00', '20:00', 'it'),
+        ],
+        Tuesday: [
+            b('Physics', '12:00', '14:00', 'science'),
+            b('Lunch', '14:00', '15:00', 'lunch'),
+            b('Maths', '15:00', '16:00', 'maths'),
+            b('Break', '16:00', '16:30', 'break'),
+            b('English', '16:30', '17:30', 'english'),
+            b('Break', '17:30', '18:00', 'break'),
+            b('OT', '18:00', '19:00', 'ot'),
+        ],
+        Wednesday: [
+            b('Chemistry', '12:00', '14:00', 'science'),
+            b('Lunch', '14:00', '15:00', 'lunch'),
+            b('Maths', '15:00', '16:00', 'maths'),
+        ],
+        Thursday: [
+            b('Travel to TMW', '', '', 'travel'),
+            b('Drumming', '12:00', '13:00', 'music'),
+            b('Music Production', '13:00', '14:00', 'music'),
+            b('Lunch', '14:00', '15:00', 'lunch'),
+            b('Maths', '15:00', '16:00', 'maths'),
+            b('Break', '16:00', '16:30', 'break'),
+            b('English', '16:30', '17:30', 'english'),
+            b('Break', '17:30', '18:00', 'break'),
+            b('Business Studies', '18:00', '20:00', 'business'),
+        ],
+        Friday: [
+            b('Travel to CAS', '', '', 'travel'),
+            b('SEMH', '11:30', '13:30', 'semh', '@ Cheltenham Animal Shelter'),
+            b('Travel Home', '13:30', '14:00', 'travel'),
+            b('Lunch', '14:00', '15:00', 'lunch'),
+            b('Maths', '15:00', '16:00', 'maths'),
+            b('Private Group', '17:30', '19:00', 'private'),
+            b('Travel Home', '', '', 'travel'),
+        ],
+        Saturday: [],
+        Sunday: [
+            b('English', '16:00', '18:00', 'english'),
+        ]
+    };
+}
+
+// ═══════════════════════════════════════════════
+// FIREBASE INITIALISATION
+// ═══════════════════════════════════════════════
+function initFirebase() {
+    if (!FIREBASE_CONFIG.apiKey) {
+        document.getElementById('setupBanner').style.display = 'block';
+        loadLocalData();
+        return;
+    }
+    try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const db = firebase.database();
+        dbRef = db.ref('timetable');
+        firebaseReady = true;
+
+        dbRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                timetableData = data;
+            } else {
+                timetableData = getDefaultTimetable();
+                dbRef.set(timetableData);
+            }
+            renderTimetable();
+            hideLoading();
+        });
+    } catch (e) {
+        console.error('Firebase init failed:', e);
+        document.getElementById('setupBanner').style.display = 'block';
+        loadLocalData();
+    }
+}
+
+function loadLocalData() {
+    const saved = localStorage.getItem('lockwood-timetable');
+    if (saved) {
+        try { timetableData = JSON.parse(saved); } catch(e) {
+            timetableData = getDefaultTimetable();
+        }
+    } else {
+        timetableData = getDefaultTimetable();
+    }
+    renderTimetable();
+    hideLoading();
+}
+
+function saveData() {
+    if (firebaseReady && dbRef) {
+        dbRef.set(timetableData);
+    } else {
+        localStorage.setItem('lockwood-timetable', JSON.stringify(timetableData));
+    }
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function renderTimetable() {
+    const grid = document.getElementById('timetableGrid');
+    const today = DAYS[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+
+    grid.innerHTML = DAYS.map(day => {
+        const blocks = timetableData[day] || [];
+        const isToday = day === today;
+
+        return `
+            <div class="day-column ${isToday ? 'today' : ''} ${isEditor ? 'editing' : ''}">
+                <div class="day-header ${isToday ? 'today-header' : ''}">
+                    ${day}
+                    ${isToday ? '<span class="today-indicator">Today</span>' : ''}
+                </div>
+                <div class="day-blocks" data-day="${day}">
+                    ${blocks.length === 0 && !isEditor ?
+                        '<div class="no-activities">No scheduled activities</div>' : ''}
+                    ${blocks.map((block, idx) => renderBlock(block, day, idx)).join('')}
+                    <button class="add-block-btn" onclick="openAddModal('${day}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add Block
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderBlock(block, day, idx) {
+    const cat = block.category || 'other';
+    const timeStr = formatTimeRange(block.start, block.end);
+    const dur = calcDuration(block.start, block.end);
+
+    return `
+        <div class="block block-${cat} ${isEditor ? 'editable' : ''}"
+             ${isEditor ? `onclick="openEditModal('${day}', ${idx})"` : ''}>
+            ${timeStr ? `<div class="block-time">${timeStr}</div>` : ''}
+            <div class="block-subject">${escapeHtml(block.subject)}</div>
+            ${dur ? `<div class="block-duration">${dur}</div>` : ''}
+            ${block.note ? `<div class="block-note">${escapeHtml(block.note)}</div>` : ''}
+            ${isEditor ? `
+                <div class="block-actions">
+                    <button class="block-action-btn" onclick="event.stopPropagation();moveBlock('${day}',${idx},-1)" title="Move up">&#9650;</button>
+                    <button class="block-action-btn" onclick="event.stopPropagation();moveBlock('${day}',${idx},1)" title="Move down">&#9660;</button>
+                    <button class="block-action-btn delete" onclick="event.stopPropagation();quickDelete('${day}',${idx})" title="Delete">&times;</button>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function formatTimeRange(start, end) {
+    if (!start && !end) return '';
+    const fmt = t => {
+        if (!t) return '';
+        const [h,m] = t.split(':').map(Number);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+    };
+    if (start && end) return `${fmt(start)} – ${fmt(end)}`;
+    if (start) return fmt(start);
+    return '';
+}
+
+function calcDuration(start, end) {
+    if (!start || !end) return '';
+    const [sh,sm] = start.split(':').map(Number);
+    const [eh,em] = end.split(':').map(Number);
+    const mins = (eh * 60 + em) - (sh * 60 + sm);
+    if (mins <= 0) return '';
+    if (mins >= 60) {
+        const hrs = Math.floor(mins / 60);
+        const rm = mins % 60;
+        return rm ? `${hrs} hr ${rm} min` : `${hrs} hr${hrs > 1 ? 's' : ''}`;
+    }
+    return `${mins} mins`;
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ═══════════════════════════════════════════════
+// EDITOR AUTH
+// ═══════════════════════════════════════════════
+function toggleEditorLogin() {
+    if (isEditor) {
+        logoutEditor();
+    } else {
+        document.getElementById('loginModal').classList.add('open');
+        document.getElementById('loginPassword').focus();
+    }
+}
+
+function attemptLogin() {
+    const pw = document.getElementById('loginPassword').value;
+    if (pw === EDITOR_PASSWORD_HASH) {
+        isEditor = true;
+        closeModal('loginModal');
+        document.getElementById('loginPassword').value = '';
+        document.getElementById('loginError').style.display = 'none';
+        document.getElementById('toolbar').classList.add('visible');
+        document.getElementById('editorBtn').innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            Editor Mode
+        `;
+        document.getElementById('editorBtn').classList.add('active');
+        renderTimetable();
+    } else {
+        document.getElementById('loginError').style.display = 'block';
+    }
+}
+
+function logoutEditor() {
+    isEditor = false;
+    document.getElementById('toolbar').classList.remove('visible');
+    document.getElementById('editorBtn').innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Editor Login
+    `;
+    document.getElementById('editorBtn').classList.remove('active');
+    renderTimetable();
+}
+
+// ═══════════════════════════════════════════════
+// BLOCK CRUD
+// ═══════════════════════════════════════════════
+function openAddModal(day) {
+    editingBlockId = null;
+    document.getElementById('blockModalTitle').textContent = 'Add Block';
+    document.getElementById('saveBlockBtn').textContent = 'Add Block';
+    document.getElementById('deleteBlockBtn').style.display = 'none';
+
+    document.getElementById('blockDay').value = day || 'Monday';
+    document.getElementById('blockSubject').value = '';
+    document.getElementById('blockStart').value = '12:00';
+    document.getElementById('blockEnd').value = '13:00';
+    document.getElementById('blockNote').value = '';
+    selectCategory('other');
+
+    document.getElementById('blockModal').classList.add('open');
+    document.getElementById('blockSubject').focus();
+}
+
+function openEditModal(day, idx) {
+    const block = timetableData[day][idx];
+    if (!block) return;
+
+    editingBlockId = { day, idx };
+    document.getElementById('blockModalTitle').textContent = 'Edit Block';
+    document.getElementById('saveBlockBtn').textContent = 'Save Changes';
+    document.getElementById('deleteBlockBtn').style.display = 'inline-flex';
+
+    document.getElementById('blockDay').value = day;
+    document.getElementById('blockSubject').value = block.subject;
+    document.getElementById('blockStart').value = block.start || '';
+    document.getElementById('blockEnd').value = block.end || '';
+    document.getElementById('blockNote').value = block.note || '';
+    selectCategory(block.category || 'other');
+
+    document.getElementById('blockModal').classList.add('open');
+}
+
+function saveBlock() {
+    const day = document.getElementById('blockDay').value;
+    const subject = document.getElementById('blockSubject').value.trim();
+    if (!subject) {
+        document.getElementById('blockSubject').style.borderColor = '#ef4444';
+        return;
+    }
+    document.getElementById('blockSubject').style.borderColor = '';
+
+    const block = {
+        subject,
+        start: document.getElementById('blockStart').value,
+        end: document.getElementById('blockEnd').value,
+        note: document.getElementById('blockNote').value.trim(),
+        category: getSelectedCategory()
+    };
+
+    if (!timetableData[day]) timetableData[day] = [];
+
+    if (editingBlockId) {
+        const origDay = editingBlockId.day;
+        const idx = editingBlockId.idx;
+        if (origDay === day) {
+            timetableData[day][idx] = { ...timetableData[day][idx], ...block };
+        } else {
+            timetableData[origDay].splice(idx, 1);
+            timetableData[day].push(block);
+        }
+    } else {
+        block.id = Date.now();
+        timetableData[day].push(block);
+    }
+
+    saveData();
+    renderTimetable();
+    closeModal('blockModal');
+}
+
+function deleteBlock() {
+    if (!editingBlockId) return;
+    if (!confirm('Remove this block?')) return;
+    timetableData[editingBlockId.day].splice(editingBlockId.idx, 1);
+    saveData();
+    renderTimetable();
+    closeModal('blockModal');
+}
+
+function quickDelete(day, idx) {
+    if (!confirm('Remove this block?')) return;
+    timetableData[day].splice(idx, 1);
+    saveData();
+    renderTimetable();
+}
+
+function moveBlock(day, idx, dir) {
+    const blocks = timetableData[day];
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= blocks.length) return;
+    [blocks[idx], blocks[newIdx]] = [blocks[newIdx], blocks[idx]];
+    saveData();
+    renderTimetable();
+}
+
+function resetToDefault() {
+    if (!confirm('Reset the timetable to the original schedule? All changes will be lost.')) return;
+    timetableData = getDefaultTimetable();
+    saveData();
+    renderTimetable();
+}
+
+// ═══════════════════════════════════════════════
+// CATEGORY PICKER
+// ═══════════════════════════════════════════════
+let selectedCategory = 'other';
+
+function buildCategoryGrid() {
+    const grid = document.getElementById('categoryGrid');
+    grid.innerHTML = CATEGORIES.map(c => `
+        <div class="category-option block-${c.id}" data-cat="${c.id}" onclick="selectCategory('${c.id}')">
+            ${c.label}
+        </div>
+    `).join('');
+}
+
+function selectCategory(catId) {
+    selectedCategory = catId;
+    document.querySelectorAll('.category-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.cat === catId);
+    });
+}
+
+function getSelectedCategory() {
+    return selectedCategory;
+}
+
+// ═══════════════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════════════
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+}
+
+// Close modals on overlay click
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('open');
+    }
+});
+
+// Close modals on Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+    }
+});
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+buildCategoryGrid();
+initFirebase();
+</script>
+</body>
+</html>
